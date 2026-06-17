@@ -1,0 +1,3 @@
+strictModeWhiteList:
+  - ^ls\b
+  - ^git\b

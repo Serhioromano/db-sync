@@ -111,3 +111,7 @@ dist
 
 # TernJS port file
 .tern-port
+
+.pi/review-requests/
+.pi/review-results/
+.pi/.vscode-ready
