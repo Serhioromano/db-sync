@@ -12,3 +12,4 @@ strictModeWhiteList:
   - ^bun run(\s+--?[a-zA-Z][\w-]*)*\s+typecheck\b
   - ^npx fallow\b
   - ^find\b
+  - ^npx tsc\b
