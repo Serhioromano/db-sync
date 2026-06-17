@@ -21,6 +21,14 @@
 - Все exit codes корректны (0 — успех, 1 — CONFIG/ENGINE, 2 — CONNECT, 3 — SCHEMA/DBML, 4 — MIGRATE, 5 — DBML_WRITE)
 - Зависимость `@clack/prompts` для интерактивного режима
 - Тестовый `.dbs.json` с профилями `prod` и `staging`
+- **Тесты:** 58 тестов в 6 файлах (100% passing):
+  - `test/helpers.ts` — моки `process.exit`, `console.log/error`, `CapturedExit`
+  - `test/errors.test.ts` — 9 тестов: конструктор, форматирование, exit codes
+  - `test/output.test.ts` — 10 тестов: exitOk, exitError, warn
+  - `test/profiles.test.ts` — 12 тестов: загрузка .dbs.json и резолв профилей
+  - `test/cli-snash.test.ts` — 10 тестов: все флаги и edge cases
+  - `test/cli-migrate.test.ts` — 11 тестов: все флаги, dry-run, insert
+  - `test/cli-main.test.ts` — 6 тестов: диспетчер подкоманд, help, version
 
 ### Added (Phase 1)
 - `src/core/types.ts` — все типы схемы БД: `ColumnDef`, `IndexDef`, `FKDef`, `TriggerDef`, `ViewDef`, `ProcedureDef`, `EnumDef`, `TableDefinition`, `SchemaIR`

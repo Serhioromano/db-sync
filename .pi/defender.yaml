@@ -14,3 +14,5 @@ strictModeWhiteList:
   - ^find\b
   - ^npx tsc\b
   - ^bun add\b
+  - ^bun test\b
+  - ^grep\b

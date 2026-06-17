@@ -37,6 +37,7 @@
   "homepage": "https://github.com/Serhioromano/db-sync#readme",
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/node": "^25.9.3",
     "fallow": "^2.97.0",
     "typescript": "^5.7.0"
   },
