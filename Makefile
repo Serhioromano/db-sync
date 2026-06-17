@@ -42,24 +42,32 @@ publish: build
 	fi
 	@# 6. Sync with remote
 	@git pull --rebase origin main
-	@# 7. Replace [Unreleased] + bump version + commit + tag (one shell)
-	@NEXT_VER=$$(npm version $(v) --dry-run 2>&1 | tail -1 | sed 's/^v//'); \
-		echo "🏷️  Next version: $$NEXT_VER"; \
+	@# 7. Bump version + CHANGELOG + commit + tag (one shell)
+	@CUR=$$(node -p "require('./package.json').version"); \
+		MAJ=$$(echo $$CUR | cut -d. -f1); \
+		MIN=$$(echo $$CUR | cut -d. -f2); \
+		PAT=$$(echo $$CUR | cut -d. -f3); \
+		case "$(v)" in \
+			major)  NEW=$$((MAJ+1)).0.0 ;; \
+			minor)  NEW=$$MAJ.$$((MIN+1)).0 ;; \
+			patch)  NEW=$$MAJ.$$MIN.$$((PAT+1)) ;; \
+			*) echo "❌ Unknown version type: $(v)"; exit 1 ;; \
+		esac; \
+		echo "🏷️  Version: $$CUR → $$NEW"; \
 		if grep -q '## \[Unreleased\]' CHANGELOG.md; then \
-			echo "📝 Replacing [Unreleased] → [v$$NEXT_VER] in CHANGELOG.md"; \
-			sed -i "s/## \[Unreleased\]/## [v$$NEXT_VER]/" CHANGELOG.md; \
+			echo "📝 Replacing [Unreleased] → [v$$NEW] in CHANGELOG.md"; \
+			sed -i "s/## \[Unreleased\]/## [v$$NEW]/" CHANGELOG.md; \
 		else \
 			echo "⚠️  No [Unreleased] section, skipping"; \
 		fi; \
-		npm version $(v) --no-git-tag-version > /dev/null 2>&1; \
-		NEW_VER=$$(node -p "require('./package.json').version"); \
-		echo "✅ package.json → $$NEW_VER"; \
+		node -e "const p=require('./package.json');p.version='$$NEW';require('fs').writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"; \
+		echo "✅ package.json → $$NEW"; \
 		git add package.json bun.lock CHANGELOG.md; \
 		if ! git diff --cached --quiet --exit-code; then \
-			git commit -m "Release v$$NEW_VER"; \
+			git commit -m "Release v$$NEW"; \
 		fi; \
-		git tag -f "v$$NEW_VER" > /dev/null 2>&1 || git tag "v$$NEW_VER"; \
-		echo "🔖 Tagged v$$NEW_VER"
+		git tag -f "v$$NEW" > /dev/null 2>&1 || git tag "v$$NEW"; \
+		echo "🔖 Tagged v$$NEW"
 	@# 8. Open new [Unreleased] section
 	@awk 'NR==1{print; print ""; print "## [Unreleased]"; next} 1' CHANGELOG.md > CHANGELOG.tmp && \
 		mv CHANGELOG.tmp CHANGELOG.md && \
