@@ -1,5 +1,7 @@
 # Changelog
 
+## [Unreleased]
+
 ## [v1.0.18]
 
 ## [v1.0.16]
