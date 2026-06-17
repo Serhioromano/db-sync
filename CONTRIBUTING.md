@@ -1,4 +1,4 @@
-# Contributing to db-sync
+# Contributing to sr-db-sync
 
 Thank you for your interest in the project! This document outlines the process for contributing changes.
 
@@ -37,8 +37,8 @@ If you discover a bug while working on a feature — create a separate PR for th
 
 ```bash
 # Fork the repository on GitHub, then:
-git clone git@github.com:YOUR_USERNAME/db-sync.git
-cd db-sync
+git clone git@github.com:YOUR_USERNAME/sr-db-sync.git
+cd sr-db-sync
 ```
 
 ### 2. Create a branch
@@ -106,7 +106,7 @@ Links to related issues (if any).
 
 ## Questions and Discussion
 
-Before starting work on a large change, create an [Issue](https://github.com/sergey-romanov/db-sync/issues) to discuss the approach — this saves time for both you and the maintainers.
+Before starting work on a large change, create an [Issue](https://github.com/sergey-romanov/sr-db-sync/issues) to discuss the approach — this saves time for both you and the maintainers.
 
 ## License
 

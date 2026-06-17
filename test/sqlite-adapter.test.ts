@@ -11,7 +11,7 @@ import { unlinkSync, existsSync } from 'node:fs';
 // Helper: create a file-based SQLite database with a rich schema
 // ============================================================
 
-const TMP_DB_PATH = '/tmp/db-sync-test-adapter.sqlite';
+const TMP_DB_PATH = '/tmp/sr-db-sync-test-adapter.sqlite';
 
 function createFileDb(path: string): void {
   // Remove if exists
@@ -162,7 +162,7 @@ describe('SqliteAdapter — connect / disconnect', () => {
   it('should fail to connect to nonexistent file', async () => {
     const adapter = new SqliteAdapter();
     try {
-      await adapter.connect('/tmp/nonexistent-db-sync-test-file-that-does-not-exist-12345.sqlite');
+      await adapter.connect('/tmp/nonexistent-sr-db-sync-test-file-that-does-not-exist-12345.sqlite');
       expect(true).toBe(false);
     } catch (err: unknown) {
       expect(err).toBeDefined();
@@ -512,7 +512,7 @@ describe('SqliteAdapter — edge cases', () => {
   afterEach(cleanup);
 
   it('should handle table with minimal columns', async () => {
-    const path = '/tmp/db-sync-test-edge.sqlite';
+    const path = '/tmp/sr-db-sync-test-edge.sqlite';
     if (existsSync(path)) unlinkSync(path);
     const db = new Database(path, { create: true });
     db.run('CREATE TABLE edge (id INTEGER PRIMARY KEY);');
@@ -531,7 +531,7 @@ describe('SqliteAdapter — edge cases', () => {
   });
 
   it('should handle table with composite PK', async () => {
-    const path = '/tmp/db-sync-test-comp-pk.sqlite';
+    const path = '/tmp/sr-db-sync-test-comp-pk.sqlite';
     if (existsSync(path)) unlinkSync(path);
     const db = new Database(path, { create: true });
     db.run('CREATE TABLE composite_pk (a INTEGER NOT NULL, b INTEGER NOT NULL, PRIMARY KEY (a, b));');
@@ -556,7 +556,7 @@ describe('SqliteAdapter — edge cases', () => {
   });
 
   it('should handle foreign key with SET NULL action', async () => {
-    const path = '/tmp/db-sync-test-fk-null.sqlite';
+    const path = '/tmp/sr-db-sync-test-fk-null.sqlite';
     if (existsSync(path)) unlinkSync(path);
     const db = new Database(path, { create: true });
     db.run('PRAGMA foreign_keys = ON');
@@ -583,7 +583,7 @@ describe('SqliteAdapter — edge cases', () => {
   });
 
   it('should handle foreign key with RESTRICT action', async () => {
-    const path = '/tmp/db-sync-test-fk-restrict.sqlite';
+    const path = '/tmp/sr-db-sync-test-fk-restrict.sqlite';
     if (existsSync(path)) unlinkSync(path);
     const db = new Database(path, { create: true });
     db.run('PRAGMA foreign_keys = ON');
@@ -612,7 +612,7 @@ describe('SqliteAdapter — edge cases', () => {
   it('should handle INSTEAD OF trigger via parsing', async () => {
     // SQLite doesn't support INSTEAD OF triggers on tables (only views),
     // but our parser handles the keyword
-    const path = '/tmp/db-sync-test-instead.sqlite';
+    const path = '/tmp/sr-db-sync-test-instead.sqlite';
     if (existsSync(path)) unlinkSync(path);
     const db = new Database(path, { create: true });
     db.run(`
@@ -668,7 +668,7 @@ function schema(tables: TableDefinition[]): SchemaIR {
   return { tables, views: [], procedures: [], enums: [], extensions: [], records: [] };
 }
 
-const MIG_TMP_DB = '/tmp/db-sync-test-migrate.sqlite';
+const MIG_TMP_DB = '/tmp/sr-db-sync-test-migrate.sqlite';
 
 function createMigDb(path: string): void {
   if (existsSync(path)) unlinkSync(path);

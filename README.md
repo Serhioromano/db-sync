@@ -1,4 +1,4 @@
-# db-sync
+# sr-db-sync
 
 CLI-утилита для двунаправленной конвертации между базой данных и DBML (Database Markup Language).
 
@@ -33,8 +33,8 @@ CLI-утилита для двунаправленной конвертации 
 
 ```bash
 # Клонирование
-git clone https://github.com/Serhioromano/db-sync.git
-cd db-sync
+git clone https://github.com/Serhioromano/sr-db-sync.git
+cd sr-db-sync
 
 # Установка зависимостей
 bun install
@@ -52,7 +52,7 @@ bun run src/index.ts --version
 ## Структура проекта
 
 ```
-db-sync/
+sr-db-sync/
 ├── src/
 │   ├── index.ts              # Точка входа CLI (команда dbs)
 │   ├── cli/                  # Подкоманды snash / migrate

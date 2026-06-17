@@ -1,5 +1,5 @@
 // ============================================================
-// AI-friendly output functions for db-sync CLI
+// AI-friendly output functions for sr-db-sync CLI
 // ============================================================
 
 import { DbsError, type DbsErrorCode } from './errors.js';

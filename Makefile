@@ -50,7 +50,7 @@ publish: build
 	@echo "🚀 Pushed to GitHub"
 	@# 9. Опубликовать в npm
 	@npm publish
-	@echo "📦 Published db-sync to npm"
+	@echo "📦 Published sr-db-sync to npm"
 	@# 10. Создать GitHub Release из CHANGELOG.md
 	@tag=$$(git describe --tags --abbrev=0); \
 		notes_file=$$(mktemp); \

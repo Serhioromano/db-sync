@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 /**
- * db-sync — CLI utility for bidirectional conversion between database and DBML
+ * sr-db-sync — CLI utility for bidirectional conversion between database and DBML
  *
  * Usage:
  *   dbs snash   [flags]    Make a snapshot of a database → DBML file
@@ -17,7 +17,7 @@ import { exitOk } from './utils/output.js';
 
 const VERSION = '1.0.0';
 
-const USAGE = `db-sync v${VERSION} — Database ↔ DBML bidirectional converter
+const USAGE = `sr-db-sync v${VERSION} — Database ↔ DBML bidirectional converter
 
 Usage:
   dbs snash    Make a snapshot of a database → DBML file
@@ -65,7 +65,7 @@ function showUsage(): void {
  * Show version and exit with OK.
  */
 function showVersion(): void {
-  console.log(`db-sync v${VERSION}`);
+  console.log(`sr-db-sync v${VERSION}`);
   exitOk('version');
 }
 

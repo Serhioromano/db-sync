@@ -13,8 +13,8 @@ import { join } from 'node:path';
 // Test database setup
 // ============================================================
 
-const TEST_DB_PATH = '/tmp/db-sync-test-snapper.sqlite';
-const OUTPUT_DIR = '/tmp/db-sync-test-snapper-output';
+const TEST_DB_PATH = '/tmp/sr-db-sync-test-snapper.sqlite';
+const OUTPUT_DIR = '/tmp/sr-db-sync-test-snapper-output';
 
 function createTestDatabase(): void {
   if (existsSync(TEST_DB_PATH)) unlinkSync(TEST_DB_PATH);
@@ -260,7 +260,7 @@ describe('snashSnapshot', () => {
     const oldDisconnect = prefixedAdapter.disconnect.bind(prefixedAdapter);
 
     // We need to create a file-based DB with prefix for this test
-    const prefixedPath = '/tmp/db-sync-test-snapper-prefixed.sqlite';
+    const prefixedPath = '/tmp/sr-db-sync-test-snapper-prefixed.sqlite';
     if (existsSync(prefixedPath)) unlinkSync(prefixedPath);
     const fileDb = new Database(prefixedPath, { create: true });
     fileDb.run('CREATE TABLE pref_users (id INTEGER PRIMARY KEY, name TEXT)');
@@ -299,7 +299,7 @@ describe('snashSnapshot', () => {
 
   it('should throw SCHEMA_READ error for corrupted database', async () => {
     // Write garbage to a file and try to connect
-    const badPath = '/tmp/db-sync-test-snapper-bad.db';
+    const badPath = '/tmp/sr-db-sync-test-snapper-bad.db';
     const { writeFileSync } = require('node:fs');
     writeFileSync(badPath, 'not a database file');
 
@@ -386,7 +386,7 @@ describe('snashSnapshot', () => {
   // ---- Empty database (no tables) ----
 
   it('should handle empty database with no tables', async () => {
-    const emptyDbPath = '/tmp/db-sync-test-snapper-empty.sqlite';
+    const emptyDbPath = '/tmp/sr-db-sync-test-snapper-empty.sqlite';
     if (existsSync(emptyDbPath)) unlinkSync(emptyDbPath);
     const emptyDb = new Database(emptyDbPath, { create: true });
     emptyDb.close();

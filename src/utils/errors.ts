@@ -1,9 +1,9 @@
 // ============================================================
-// Structured error types for db-sync
+// Structured error types for sr-db-sync
 // ============================================================
 
 /**
- * All recognised error codes for db-sync.
+ * All recognised error codes for sr-db-sync.
  */
 export type DbsErrorCode =
   | 'CONFIG' // .dbs.json not found, invalid JSON, missing profile
@@ -30,7 +30,7 @@ export const EXIT_CODES: Record<DbsErrorCode, number> = {
 };
 
 /**
- * Structured error for db-sync.
+ * Structured error for sr-db-sync.
  *
  * Always has: code, message, cause.
  * Optionally: engine, dsn, hint, file, line, operation, table, column.
