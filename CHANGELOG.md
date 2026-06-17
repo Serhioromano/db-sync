@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [v1.0.4]
+
 ## [v1.0.3]
 
 ### Added (Фаза 9 — Адаптер MySQL Snash + Migrate)
