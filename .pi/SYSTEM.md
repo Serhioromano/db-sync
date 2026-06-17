@@ -7,16 +7,18 @@
 - **Фаза 0** (Инициализация) завершена.
 - **Фаза 1** (Типы и интерфейсы) завершена.
 - **Фаза 2** (CLI-скелет) завершена.
+- **Фаза 3** (Парсер DBML) завершена.
 - Полноценный парсинг флагов через `node:util.parseArgs`.
 - Загрузка и резолв профилей из `.dbs.json`.
 - Интерактивный режим через `@clack/prompts` (без подкоманды).
 - AI-friendly вывод: `exitOk()`, `exitError()`, `warn()`, `DbsError.format()`.
 - Поддержка `--profile`, `--dsn`, `--engine`, `--prefix`, `--output`, `--input`, `--dry-run`, `--insert`, `--profiles-file`.
 - Корректные exit codes (0–5).
+- DBML лексер, парсер → SchemaIR, парсинг @dbs-комментариев.
 
 ## Следующая фаза
 
-Фаза 3: Парсер DBML — лексер, парсер, парсинг @dbs-комментариев → SchemaIR.
+Фаза 4: Адаптер SQLite (Snash) — чтение схемы из SQLite через `bun:sqlite`.
 
 ## Ключевые файлы
 
@@ -33,5 +35,8 @@
 | `src/adapters/adapter.interface.ts` | Интерфейс DatabaseAdapter |
 | `src/config/config.types.ts` | Типы конфигурации профилей |
 | `src/config/profiles.ts` | Загрузка и резолв `.dbs.json` |
+| `src/parser/dbml-lexer.ts` | Токенизатор DBML (ключевые слова, символы, строки, числа, комментарии) |
+| `src/parser/dbml-parser.ts` | Парсер DBML → SchemaIR (таблицы, колонки, индексы, Ref, Enum, DBS-расширения) |
+| `src/utils/comments.ts` | Кодирование/декодирование `// @dbs:` комментариев |
 | `src/utils/errors.ts` | Класс DbsError |
-| `src/utils/output.ts` | Функции вывода: exitOk, exitError, warn
+| `src/utils/output.ts` | Функции вывода: exitOk, exitError, warn |

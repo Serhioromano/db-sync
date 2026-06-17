@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+### Added (Phase 3)
+- `src/parser/dbml-lexer.ts` — токенизатор DBML: ключевые слова (Table, Project, Enum, Ref, TableGroup, Indexes, Note, Records), символы, идентификаторы, строки (одинарные/двойные/backtick), многострочные строки, числа, комментарии `//` и `--` (LINE_COMMENT), отслеживание номеров строк и колонок
+- `src/parser/dbml-parser.ts` — рекурсивный парсер DBML → `SchemaIR`:
+  - Парсинг таблиц с колонками, типами (включая параметры), настройками (`[pk, increment, not null, unique, default:, note:, ref:]`)
+  - Парсинг блоков Indexes (одиночные и композитные индексы с настройками `unique, name:, type:`)
+  - Парсинг Ref-деклараций (inline `Ref: a.b > c.d`, блочные с `{ }`, с настройками `delete:, update:`), определение направления FK (`>`, `<`)
+  - Парсинг Enum-блоков
+  - Парсинг и пропуск Project, TableGroup, Records, Note
+  - Авто-генерация имён индексов если не указаны
+- `src/utils/comments.ts` — кодирование/декодирование `// @dbs:` комментариев:
+  - Парсинг всех типов: trigger, view, procedure, check, engine, charset, collation, raw
+  - Обратный формат (round-trip): DbsExtension → `// @dbs:` строки
+- Интеграция DBS-расширений в SchemaIR: триггеры привязываются к таблицам, views/procedures в schema.views/schema.procedures, engine/charset/collation/check/raw в schema.extensions
+- **Тесты:** 76 тестов в `test/parser.test.ts`:
+  - 29 тестов лексера (ключевые слова, символы, строки, числа, комментарии, трекинг строк)
+  - 14 тестов DBS-комментариев (все 9 типов, round-trip форматирования)
+  - 33 теста парсера (таблицы, колонки, настройки, индексы, Ref, Enum, Project, DBS-расширения, TableGroup, Records, обработка ошибок, edge cases, полная схема)
+
 ### Added (Phase 0)
 - Инициализация Bun + TypeScript проекта
 - Настройка `tsconfig.json` (strict, ESNext, bundler module resolution)
