@@ -1,0 +1,10 @@
+{
+  "prod": {
+    "dsn": "./prod.db",
+    "engine": "sqlite"
+  },
+  "staging": {
+    "dsn": "./staging.db",
+    "engine": "sqlite"
+  }
+}

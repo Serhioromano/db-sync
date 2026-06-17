@@ -1,0 +1,7 @@
+{
+  "dev": {
+    "dsn": "./test.db",
+    "engine": "sqlite",
+    "file": "./migration/dev.dbml"
+  }
+}

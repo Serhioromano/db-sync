@@ -2,6 +2,47 @@
 
 ## [Unreleased]
 
+### Changed (Config discovery)
+- `.dbs.json` перемещён в `migration/.dbs.json`
+- `discoverProfilesFile(explicitPath?)` — поиск файла профилей: `migration/.dbs.json` → `.dbs.json`
+- `snash.ts` и `migrate.ts` — используют `discoverProfilesFile()`
+- `.gitignore` — `migration/*.dbml` (генерируемые), `.dbs.json` коммитится
+
+### Added (Interactive snash)
+- `dbs snash` (без `--dsn`/`--profile`) → интерактивный режим:
+  1. Выбор движка (`@clack/prompts` select)
+  2. Заполнение DSN-полей адаптера (для SQLite — путь к файлу)
+  3. Опционально: путь к выходному DBML-файлу
+  4. Подтверждение и выполнение
+- `dbs snash --engine sqlite` (без `--dsn`) → интерактивный ввод только DSN
+- `dbs snash --engine mysql` → ошибка «not yet implemented»
+- Выделен `executeSnash(config)` — общий хелпер для прямого и интерактивного путей
+
+### Added (Phase 6)
+- `src/core/snapper.ts` — бизнес-логика Snash: БД → SchemaIR → DBML файл:
+  - `snashSnapshot(adapter, options)` — основная функция: connect → getTables → getColumns → getIndexes → getFK → getTriggers → getViews → getProcedures → getEnums → SchemaIR → generateDbml → writeFile
+  - `SnashOptions` — опции: `file`, `prefix`, `projectName`, `engine`
+  - Обработка ошибок: SCHEMA_READ при ошибках чтения схемы, DBML_WRITE при ошибках записи файла
+  - Префикс-стриппинг: если указан `--prefix`, имена таблиц очищаются от префикса при записи в DBML
+- `src/cli/snash.ts` — полная интеграция команды `dbs snash`:
+  - Разрешение конфигурации: профиль (`--profile`) или флаги (`--dsn` + `--engine`)
+  - Создание адаптера через `createAdapter()` (сейчас только SQLite, MySQL/PostgreSQL — заглушки)
+  - Подключение → snash → отключение → EXIT OK
+  - Обработка ошибок: CONNECT, ENGINE, SCHEMA_READ, DBML_WRITE
+  - Команда стала асинхронной (`async snashCommand`)
+- `src/index.ts` — `snashCommand` теперь `await`
+
+### Changed (Generator fix)
+- `src/generator/dbml-writer.ts` — `formatDefaultValue`: добавлена обработка уже закавыченных строковых литералов (`'value'` — как возвращает SQLite PRAGMA table_info). Такие значения передаются «как есть» без повторного экранирования.
+
+### Changed (Test infrastructure)
+- `test/helpers.ts` — `runAndCaptureExit` и `runWithoutExit` теперь принимают и `async` функции
+- Все тесты, использующие `runAndCaptureExit`, обновлены на `async`/`await`
+- `test/cli-snash.test.ts` — полностью переписан: тесты создают реальную SQLite БД и проверяют полный цикл snash (connect → snapshot → DBML file)
+- `test/cli-main.test.ts` — обновлён dispatch-тест для snash (реальная БД, async)
+- `test/snapper.test.ts` — 10 тестов: базовый snapshot, индексы, FK, триггеры, views, префиксы, ошибки, roundtrip через парсер, Project-блок, пустая БД
+- `test/output.test.ts`, `test/errors.test.ts`, `test/cli-migrate.test.ts`, `test/profiles.test.ts` — добавлены `async`/`await`
+
 ### Changed (Architecture)
 - `extractDbName` вынесен как метод интерфейса `DatabaseAdapter`
   - Каждый адаптер реализует парсинг своего формата DSN

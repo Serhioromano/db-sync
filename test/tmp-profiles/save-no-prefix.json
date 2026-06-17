@@ -1,0 +1,6 @@
+{
+  "noprefix": {
+    "dsn": "./db.sqlite",
+    "engine": "sqlite"
+  }
+}

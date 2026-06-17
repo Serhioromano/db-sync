@@ -18,8 +18,8 @@ describe('exitOk', () => {
     uninstall();
   });
 
-  it('should print EXIT OK [details] and exit with code 0', () => {
-    const captured = runAndCaptureExit(() => exitOk('profile resolved: prod'));
+  it('should print EXIT OK [details] and exit with code 0', async () => {
+    const captured = await runAndCaptureExit(() => exitOk('profile resolved: prod'));
 
     expect(captured.code).toBe(0);
     expect(captured.stdout.length).toBe(1);
@@ -27,15 +27,15 @@ describe('exitOk', () => {
     expect(captured.stderr.length).toBe(0);
   });
 
-  it('should exit with code 0 for empty details', () => {
-    const captured = runAndCaptureExit(() => exitOk(''));
+  it('should exit with code 0 for empty details', async () => {
+    const captured = await runAndCaptureExit(() => exitOk(''));
 
     expect(captured.code).toBe(0);
     expect(captured.stdout[0]).toBe('EXIT OK []');
   });
 
-  it('should exit with code 0 for multi-word details', () => {
-    const captured = runAndCaptureExit(() => exitOk('dry-run: 5 operations previewed'));
+  it('should exit with code 0 for multi-word details', async () => {
+    const captured = await runAndCaptureExit(() => exitOk('dry-run: 5 operations previewed'));
 
     expect(captured.code).toBe(0);
     expect(captured.stdout[0]).toBe('EXIT OK [dry-run: 5 operations previewed]');
@@ -54,8 +54,8 @@ describe('exitError', () => {
     uninstall();
   });
 
-  it('should print ERROR [CODE] and exit with matching code', () => {
-    const captured = runAndCaptureExit(() =>
+  it('should print ERROR [CODE] and exit with matching code', async () => {
+    const captured = await runAndCaptureExit(() =>
       exitError('CONFIG', 'No profile provided', {
         hint: 'Use --profile',
       })
@@ -68,8 +68,8 @@ describe('exitError', () => {
     expect(stderr).toContain('hint: Use --profile');
   });
 
-  it('should include optional context fields', () => {
-    const captured = runAndCaptureExit(() =>
+  it('should include optional context fields', async () => {
+    const captured = await runAndCaptureExit(() =>
       exitError('MIGRATE', 'Column not found', {
         engine: 'sqlite',
         operation: 'ALTER TABLE',
@@ -87,8 +87,8 @@ describe('exitError', () => {
     expect(stderr).toContain('column: email');
   });
 
-  it('should use message as cause when cause is not provided', () => {
-    const captured = runAndCaptureExit(() =>
+  it('should use message as cause when cause is not provided', async () => {
+    const captured = await runAndCaptureExit(() =>
       exitError('CONNECT', 'Connection refused', {})
     );
 
@@ -96,8 +96,8 @@ describe('exitError', () => {
     expect(stderr).toContain('cause: Connection refused');
   });
 
-  it('should omit fields that are not provided', () => {
-    const captured = runAndCaptureExit(() =>
+  it('should omit fields that are not provided', async () => {
+    const captured = await runAndCaptureExit(() =>
       exitError('SCHEMA_READ', 'Read error', { cause: 'locked' })
     );
 
@@ -107,8 +107,8 @@ describe('exitError', () => {
     expect(stderr).not.toContain('file:');
   });
 
-  it('should exit with code 5 for DBML_WRITE', () => {
-    const captured = runAndCaptureExit(() =>
+  it('should exit with code 5 for DBML_WRITE', async () => {
+    const captured = await runAndCaptureExit(() =>
       exitError('DBML_WRITE', 'Cannot write file', {
         file: 'schema.dbml',
       })
@@ -133,8 +133,8 @@ describe('warn', () => {
     uninstall();
   });
 
-  it('should print WARN to stderr without exiting', () => {
-    const output = runWithoutExit(() => warn('DEPRECATED', 'Old flag used'));
+  it('should print WARN to stderr without exiting', async () => {
+    const output = await runWithoutExit(() => warn('DEPRECATED', 'Old flag used'));
 
     expect(output.stderr.length).toBe(1);
     expect(output.stderr[0]).toBe('WARN [DEPRECATED] Old flag used');

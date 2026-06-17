@@ -258,6 +258,11 @@ function formatDefaultValue(dv: string): string {
     return trimmed;
   }
 
+  // Already single-quoted string literal (as returned by SQLite PRAGMA table_info)
+  if (trimmed.startsWith("'") && trimmed.endsWith("'")) {
+    return trimmed;
+  }
+
   // Numeric literals
   if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
     return trimmed;

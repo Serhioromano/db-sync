@@ -3,7 +3,7 @@
 // ============================================================
 
 import { parseArgs } from 'node:util';
-import { resolveProfile } from '../config/profiles.js';
+import { resolveProfile, discoverProfilesFile } from '../config/profiles.js';
 import type { DbsConfig } from '../config/config.types.js';
 import { exitOk, exitError } from '../utils/output.js';
 
@@ -81,7 +81,8 @@ export function migrateCommand(args: string[]): void {
   const profilesFile = strVal(values['profiles-file']);
 
   if (profile) {
-    const config: DbsConfig = resolveProfile(profile, profilesFile ?? '.dbs.json');
+    const discoveredFile = discoverProfilesFile(profilesFile);
+    const config: DbsConfig = resolveProfile(profile, discoveredFile);
     if (file) config.file = file;
     config.dryRun = dryRun;
     config.insert = insert;

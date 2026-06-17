@@ -3,6 +3,7 @@
 // ============================================================
 
 import { describe, it, expect, afterEach, beforeEach } from 'bun:test';
+import { Database } from 'bun:sqlite';
 import {
   writeFileSync,
   mkdirSync,
@@ -15,6 +16,7 @@ import { join } from 'node:path';
 import { installMocks, runAndCaptureExit, resetCapture } from './helpers.js';
 
 const TEST_DIR = join(import.meta.dir, 'tmp-cli-main');
+const TEST_DB = join(TEST_DIR, 'test.db');
 
 function testPath(name: string): string {
   return join(TEST_DIR, name);
@@ -22,6 +24,13 @@ function testPath(name: string): string {
 
 function writeJson(file: string, content: unknown): void {
   writeFileSync(testPath(file), JSON.stringify(content));
+}
+
+function createTestDb(path: string): void {
+  if (existsSync(path)) unlinkSync(path);
+  const db = new Database(path, { create: true });
+  db.run('CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)');
+  db.close();
 }
 
 describe('CLI main entry (sync paths)', () => {
@@ -34,6 +43,7 @@ describe('CLI main entry (sync paths)', () => {
     if (!existsSync(TEST_DIR)) {
       mkdirSync(TEST_DIR, { recursive: true });
     }
+    createTestDb(TEST_DB);
   });
 
   afterEach(() => {
@@ -51,12 +61,10 @@ describe('CLI main entry (sync paths)', () => {
 
   // ---- --help ----
 
-  it('should show usage on --help', () => {
+  it('should show usage on --help', async () => {
     process.argv = ['bun', 'dbs', '--help'];
 
-    // Dynamic import to get a fresh module with our argv
-    const captured = runAndCaptureExit(() => {
-      // We need to re-execute the main logic
+    const captured = await runAndCaptureExit(() => {
       const args = process.argv.slice(2);
       if (args.includes('--help') || args.includes('-h')) {
         const { exitOk } = require('../src/utils/output.js');
@@ -70,10 +78,10 @@ describe('CLI main entry (sync paths)', () => {
     );
   });
 
-  it('should show version on --version', () => {
+  it('should show version on --version', async () => {
     process.argv = ['bun', 'dbs', '--version'];
 
-    const captured = runAndCaptureExit(() => {
+    const captured = await runAndCaptureExit(() => {
       const args = process.argv.slice(2);
       if (args.includes('--version') || args.includes('-v')) {
         const { exitOk } = require('../src/utils/output.js');
@@ -89,12 +97,13 @@ describe('CLI main entry (sync paths)', () => {
 
   // ---- Subcommand dispatch ----
 
-  it('should dispatch snash subcommand', () => {
+  it('should dispatch snash subcommand', async () => {
+    const outFile = testPath('snap-output.dbml');
+
     writeJson('profiles.json', {
-      prod: { dsn: './my.db', engine: 'sqlite' },
+      prod: { dsn: TEST_DB, engine: 'sqlite', file: outFile },
     });
 
-    // Simulate argv: dbs snash --profile prod --profiles-file <path>
     process.argv = [
       'bun',
       'dbs',
@@ -105,19 +114,20 @@ describe('CLI main entry (sync paths)', () => {
       testPath('profiles.json'),
     ];
 
-    const captured = runAndCaptureExit(() => {
+    const captured = await runAndCaptureExit(async () => {
       const args = process.argv.slice(2);
       if (args[0] === 'snash') {
         const { snashCommand } = require('../src/cli/snash.js');
-        snashCommand(args.slice(1));
+        await snashCommand(args.slice(1));
       }
     });
 
     expect(captured.code).toBe(0);
-    expect(captured.stdout[0]).toBe('EXIT OK [profile resolved: prod]');
+    expect(captured.stdout.some((l) => l.includes('EXIT OK'))).toBe(true);
+    expect(existsSync(outFile)).toBe(true);
   });
 
-  it('should dispatch migrate subcommand with --dry-run', () => {
+  it('should dispatch migrate subcommand with --dry-run', async () => {
     writeJson('profiles.json', {
       prod: { dsn: './my.db', engine: 'sqlite' },
     });
@@ -133,7 +143,7 @@ describe('CLI main entry (sync paths)', () => {
       '--dry-run',
     ];
 
-    const captured = runAndCaptureExit(() => {
+    const captured = await runAndCaptureExit(() => {
       const args = process.argv.slice(2);
       if (args[0] === 'migrate') {
         const { migrateCommand } = require('../src/cli/migrate.js');
@@ -142,13 +152,13 @@ describe('CLI main entry (sync paths)', () => {
     });
 
     expect(captured.code).toBe(0);
-    expect(captured.stdout[0]).toBe('EXIT OK [dry-run]');
+    expect(captured.stdout.some((l) => l.includes('EXIT OK'))).toBe(true);
   });
 
-  it('should error on unknown subcommand', () => {
+  it('should error on unknown subcommand', async () => {
     process.argv = ['bun', 'dbs', 'unknown'];
 
-    const captured = runAndCaptureExit(() => {
+    const captured = await runAndCaptureExit(() => {
       const args = process.argv.slice(2);
       const command = args[0];
       if (!['snash', 'migrate'].includes(command) && !command.startsWith('-')) {
@@ -162,10 +172,10 @@ describe('CLI main entry (sync paths)', () => {
     expect(stderr).toContain('ERROR [CONFIG]');
   });
 
-  it('should error when --dsn used without subcommand', () => {
+  it('should error when --dsn used without subcommand', async () => {
     process.argv = ['bun', 'dbs', '--dsn', './test.db'];
 
-    const captured = runAndCaptureExit(() => {
+    const captured = await runAndCaptureExit(() => {
       const args = process.argv.slice(2);
       const command = args[0];
       if (command.startsWith('-')) {

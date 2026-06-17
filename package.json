@@ -11,7 +11,8 @@
     "build": "bun build src/index.ts --outdir dist --target bun --minify",
     "start": "bun run src/index.ts",
     "dev": "bun run --watch src/index.ts",
-    "typecheck": "bun run build --noEmit"
+    "typecheck": "bun run build --noEmit",
+    "snash": "bun ./src/index.ts  snash --dsn migration/test.db --engine sqlite --file migration/test.dbml"
   },
   "repository": {
     "type": "git",

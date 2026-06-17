@@ -55,13 +55,15 @@ export function resetCapture() {
  * Run a function that is expected to call process.exit(),
  * and return what was captured. If the function does not exit,
  * the test fails.
+ *
+ * Supports both sync and async functions.
  */
-export function runAndCaptureExit(
-  fn: () => void
-): { code: number; stdout: string[]; stderr: string[] } {
+export async function runAndCaptureExit(
+  fn: (() => void) | (() => Promise<void>),
+): Promise<{ code: number; stdout: string[]; stderr: string[] }> {
   resetCapture();
   try {
-    fn();
+    await fn();
     throw new Error('Expected process.exit() but function returned normally');
   } catch (e) {
     if (e instanceof CapturedExit) {
@@ -78,13 +80,15 @@ export function runAndCaptureExit(
 /**
  * Run a function that is NOT expected to call process.exit().
  * Returns captured output.
+ *
+ * Supports both sync and async functions.
  */
-export function runWithoutExit(
-  fn: () => void
-): { stdout: string[]; stderr: string[] } {
+export async function runWithoutExit(
+  fn: (() => void) | (() => Promise<void>),
+): Promise<{ stdout: string[]; stderr: string[] }> {
   resetCapture();
   try {
-    fn();
+    await fn();
   } catch (e) {
     if (e instanceof CapturedExit) {
       throw new Error(

@@ -2,8 +2,8 @@
 // Profile loading and resolution for .dbs.json
 // ============================================================
 
-import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
 import type { DbsProfiles, DbsConfig } from './config.types.js';
 import { exitError } from '../utils/output.js';
 import type { DatabaseAdapter } from '../adapters/adapter.interface.js';
@@ -13,6 +13,35 @@ import { SqliteAdapter } from '../adapters/sqlite.js';
  * Supported database engines.
  */
 const VALID_ENGINES = new Set(['sqlite', 'mysql', 'postgres']);
+
+/**
+ * Discover the .dbs.json profiles file.
+ *
+ * Search order:
+ *   1. If explicitPath is provided → use it directly (fail if missing)
+ *   2. migration/.dbs.json (relative to CWD)
+ *   3. .dbs.json (relative to CWD)
+ *
+ * Returns the discovered path (the same relative string that was matched).
+ * Exits with CONFIG error if no file found at any location.
+ */
+export function discoverProfilesFile(explicitPath?: string): string {
+  if (explicitPath) {
+    // Explicit path — fail if it doesn't exist (loadProfilesFile handles the error)
+    return explicitPath;
+  }
+
+  const candidates = ['migration/.dbs.json', '.dbs.json'];
+  for (const candidate of candidates) {
+    if (existsSync(resolve(candidate))) {
+      return candidate;
+    }
+  }
+
+  exitError('CONFIG', 'Profiles file not found', {
+    hint: 'Create migration/.dbs.json or .dbs.json in your project root, or use --profiles-file to specify a path',
+  });
+}
 
 /**
  * Load and parse a .dbs.json profiles file.
@@ -29,7 +58,7 @@ export function loadProfilesFile(profilesFile: string): DbsProfiles {
   if (!existsSync(resolvedPath)) {
     exitError('CONFIG', `Profiles file not found: ${profilesFile}`, {
       file: resolvedPath,
-      hint: 'Create a .dbs.json file in your project root, or use --profiles-file to specify a path',
+      hint: 'Create migration/.dbs.json or .dbs.json in your project root, or use --profiles-file to specify a path',
     });
   }
 
@@ -202,4 +231,55 @@ export function extractDbName(dsn: string, engine: string): string {
   }
 
   return 'database';
+}
+
+// ============================================================
+// Profile persistence
+// ============================================================
+
+/**
+ * Add or update a profile in a .dbs.json file.
+ *
+ * Creates the file (and parent directories) if they don't exist.
+ * Existing profiles in the file are preserved.
+ */
+export function saveProfile(
+  profilesFile: string,
+  profileName: string,
+  profile: { dsn: string; engine: string; prefix?: string; file?: string },
+): void {
+  const resolvedPath = resolve(profilesFile);
+
+  // Load existing profiles (or start fresh if file doesn't exist)
+  let profiles: DbsProfiles = {};
+  if (existsSync(resolvedPath)) {
+    try {
+      const raw = readFileSync(resolvedPath, 'utf-8');
+      if (raw.trim()) {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+          profiles = parsed as DbsProfiles;
+        }
+      }
+    } catch {
+      // Invalid JSON or unreadable — start fresh
+    }
+  }
+
+  // Merge the new profile
+  profiles[profileName] = {
+    dsn: profile.dsn,
+    engine: profile.engine,
+    ...(profile.prefix ? { prefix: profile.prefix } : {}),
+    ...(profile.file ? { file: profile.file } : {}),
+  };
+
+  // Ensure parent directory exists
+  const dir = dirname(resolvedPath);
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+
+  // Write
+  writeFileSync(resolvedPath, JSON.stringify(profiles, null, 2) + '\n', 'utf-8');
 }

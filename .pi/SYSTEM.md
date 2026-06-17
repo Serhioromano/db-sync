@@ -10,12 +10,14 @@
 - **Фаза 3** (Парсер DBML) завершена.
 - **Фаза 4** (Адаптер SQLite, Snash) завершена.
 - **Фаза 5** (Генератор DBML) завершена.
+- **Фаза 6** (Команда Snash) завершена.
+- `dbs snash --dsn ./test.db --engine sqlite --file schema.dbml` создаёт валидный DBML-файл с полной схемой (249 тестов).
 - Унификация `--output`/`--input` → `--file` (единый флаг для обеих подкоманд).
 - Авто-вывод пути DBML-файла из DSN (`./migration/<dbname>.dbml`) через `extractDbName()` и `defaultDbmlPath()`.
 - `extractDbName` добавлен как метод интерфейса `DatabaseAdapter` (каждый адаптер знает, как парсить свой DSN).
 - `extractDbName` в `profiles.ts` делегирует адаптеру; fallback для движков без адаптера (MySQL/PostgreSQL).
-- Поле `file` добавлено в профили `.dbs.json`.
-- Приоритет разрешения `file`: явный `--file` > профиль > авто-вывод из DSN.
+- `.dbs.json` в `migration/.dbs.json` (приоритетная локация).
+- `discoverProfilesFile()` — поиск `.dbs.json` в `migration/`, затем в корне.
 - Полноценный парсинг флагов через `node:util.parseArgs`.
 - Загрузка и резолв профилей из `.dbs.json`.
 - Интерактивный режим через `@clack/prompts` (без подкоманды).
@@ -27,7 +29,7 @@
 
 ## Следующая фаза
 
-Фаза 6: Команда Snash — интеграция адаптера, генератора и CLI (полная команда `dbs snash`).
+Фаза 7: Diff-движок — сравнение SchemaIR (текущая БД) и SchemaIR (из DBML) → MigrationPlan.
 
 ## Ключевые файлы
 |------|-----------|
@@ -36,8 +38,9 @@
 | `README.md` | Документация и статус проекта |
 | `CHANGELOG.md` | История изменений |
 | `src/index.ts` | Точка входа CLI, диспетчер подкоманд, интерактивный режим |
-| `src/cli/snash.ts` | Подкоманда snash (заглушка) |
+| `src/cli/snash.ts` | Подкоманда snash: разрешение конфигурации, вызов snapper, обработка ошибок |
 | `src/cli/migrate.ts` | Подкоманда migrate (заглушка) |
+| `src/core/snapper.ts` | Бизнес-логика: БД → SchemaIR → DBML файл |
 | `src/core/types.ts` | Все типы схемы БД, SchemaIR, MigrationPlan |
 | `src/adapters/adapter.interface.ts` | Интерфейс DatabaseAdapter |
 | `src/adapters/sqlite.ts` | Адаптер SQLite: Snash (чтение схемы) + заглушки Migrate (Фаза 8) |

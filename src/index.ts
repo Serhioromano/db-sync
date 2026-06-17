@@ -170,7 +170,7 @@ async function main(): Promise<void> {
 
   switch (command) {
     case 'snash':
-      snashCommand(remainingArgs);
+      await snashCommand(remainingArgs);
       break;
 
     case 'migrate':

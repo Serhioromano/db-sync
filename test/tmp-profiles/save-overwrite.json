@@ -1,0 +1,6 @@
+{
+  "prod": {
+    "dsn": "./new.db",
+    "engine": "sqlite"
+  }
+}

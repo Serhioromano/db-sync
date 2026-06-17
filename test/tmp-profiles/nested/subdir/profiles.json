@@ -1,0 +1,6 @@
+{
+  "deep": {
+    "dsn": "./deep.db",
+    "engine": "sqlite"
+  }
+}

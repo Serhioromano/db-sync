@@ -10,5 +10,10 @@
     "engine": "mysql",
     "prefix": "",
     "file": "./migration/staging.dbml"
+  },
+  "test": {
+    "dsn": "./migration/test.db",
+    "engine": "sqlite",
+    "file": "./migration/test.dbml"
   }
 }

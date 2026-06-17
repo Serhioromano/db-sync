@@ -130,14 +130,14 @@ describe('DbsError', () => {
 
   // ---- exit() ----
 
-  it('exit() should call process.exit with correct code', () => {
+  it('exit() should call process.exit with correct code', async () => {
     const err = new DbsError({
       code: 'CONNECT',
       message: 'Connection refused',
       cause: 'ECONNREFUSED',
     });
 
-    const captured = runAndCaptureExit(() => err.exit());
+    const captured = await runAndCaptureExit(() => err.exit());
     expect(captured.code).toBe(2);
     expect(captured.stderr.some((l) => l.includes('ERROR [CONNECT]'))).toBe(
       true
@@ -147,7 +147,7 @@ describe('DbsError', () => {
     );
   });
 
-  it('exit() should write formatted error to stderr', () => {
+  it('exit() should write formatted error to stderr', async () => {
     const err = new DbsError({
       code: 'SCHEMA_READ',
       message: 'Cannot read table',
@@ -156,7 +156,7 @@ describe('DbsError', () => {
       hint: 'Try again',
     });
 
-    const captured = runAndCaptureExit(() => err.exit());
+    const captured = await runAndCaptureExit(() => err.exit());
     // format() produces a single multi-line string; console.error receives it as one call
     expect(captured.stderr.length).toBe(1);
     const stderr = captured.stderr[0];

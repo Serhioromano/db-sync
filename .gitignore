@@ -9,6 +9,9 @@ lerna-debug.log*
 # database
 *.sqlite
 
+# generated DBML files (keep migration/.dbs.json — it's a config file)
+migration/*.dbml
+
 # package-json
 package-json.lock
 
